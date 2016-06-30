@@ -28,6 +28,7 @@ static image det  ;
 static image det_s;
 static image disp = {0};
 static CvCapture * cap;
+static CvVideoWriter *writer = 0;
 static float fps = 0;
 static float demo_thresh = 0;
 
@@ -83,7 +84,7 @@ double get_wall_time()
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, image *labels, int classes, int frame_skip)
+void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, image *labels, int classes, int frame_skip, const char *outfile)
 {
     //skip = frame_skip;
     int delay = frame_skip;
@@ -108,6 +109,11 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
 
     if(!cap) error("Couldn't connect to webcam.\n");
 
+    if(outfile){
+        writer = cvCreateVideoWriter(outfile, CV_FOURCC('P','I','M','1'), 25, cvSize(640, 480), 1);
+        if(!writer) error("Couldn't write to outfile.\n");
+    }
+    
     detection_layer l = net.layers[net.n-1];
     int j;
 
@@ -154,6 +160,11 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
             if(pthread_create(&detect_thread, 0, detect_in_thread, 0)) error("Thread creation failed");
 
             show_image(disp, "Demo");
+
+            IplImage* cv_disp = image_to_ipl(disp);
+            cvWriteFrame(writer, cv_disp);
+            cvReleaseImage(&cv_disp);
+
             int c = cvWaitKey(1);
             if (c == 10){
                 if(frame_skip == 0) frame_skip = 60;
@@ -193,9 +204,10 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
             before = after;
         }
     }
+    cvReleaseVideoWriter(&writer);
 }
 #else
-void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, image *labels, int classes, int frame_skip)
+void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, image *labels, int classes, int frame_skip, const char *outfile)
 {
     fprintf(stderr, "Demo needs OpenCV for webcam images.\n");
 }
