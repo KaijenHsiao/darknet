@@ -147,10 +147,11 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
     }
 
     int count = 0;
-    cvNamedWindow("Demo", CV_WINDOW_NORMAL); 
-    cvMoveWindow("Demo", 0, 0);
-    cvResizeWindow("Demo", 1352, 1013);
-
+    if(!outfile){
+        cvNamedWindow("Demo", CV_WINDOW_NORMAL); 
+        cvMoveWindow("Demo", 0, 0);
+        cvResizeWindow("Demo", 1352, 1013);
+    }
     double before = get_wall_time();
 
     while(1){
@@ -159,12 +160,14 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
             if(pthread_create(&fetch_thread, 0, fetch_in_thread, 0)) error("Thread creation failed");
             if(pthread_create(&detect_thread, 0, detect_in_thread, 0)) error("Thread creation failed");
 
-            show_image(disp, "Demo");
-
-            IplImage* cv_disp = image_to_ipl(disp);
-            cvWriteFrame(writer, cv_disp);
-            cvReleaseImage(&cv_disp);
-
+            if(!outfile){
+                show_image(disp, "Demo");
+            }
+            else{
+                IplImage* cv_disp = image_to_ipl(disp);
+                cvWriteFrame(writer, cv_disp);
+                cvReleaseImage(&cv_disp);
+            }
             int c = cvWaitKey(1);
             if (c == 10){
                 if(frame_skip == 0) frame_skip = 60;
@@ -191,8 +194,10 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
                 free_image(disp);
                 disp = det;
             }
-            show_image(disp, "Demo");
-            cvWaitKey(1);
+            if(!outfile){
+                show_image(disp, "Demo");
+                cvWaitKey(1);
+            }
         }
         --delay;
         if(delay < 0){
@@ -204,7 +209,9 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
             before = after;
         }
     }
-    cvReleaseVideoWriter(&writer);
+    if(outfile){
+        cvReleaseVideoWriter(&writer);
+    }
 }
 #else
 void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, image *labels, int classes, int frame_skip, const char *outfile)
