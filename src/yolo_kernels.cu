@@ -22,6 +22,8 @@ extern "C" void convert_yolo_detections(float *predictions, int classes, int num
 extern "C" char *voc_names[];
 extern "C" image voc_labels[];
 
+#define NUM_CLASSES 3
+
 static float **probs;
 static box *boxes;
 static network net;
@@ -59,7 +61,7 @@ void *detect_in_thread(void *ptr)
     printf("\033[1;1H");
     printf("\nFPS:%.0f\n",fps);
     printf("Objects:\n\n");
-    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, voc_names, voc_labels, 20);
+    draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, voc_names, voc_labels, NUM_CLASSES);
     return 0;
 }
 

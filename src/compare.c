@@ -7,6 +7,8 @@
 #include "parser.h"
 #include "box.h"
 
+#define NUM_CLASSES 3
+
 void train_compare(char *cfgfile, char *weightfile)
 {
     data_seed = time(0);
@@ -34,7 +36,7 @@ void train_compare(char *cfgfile, char *weightfile)
     args.w = net.w;
     args.h = net.h;
     args.paths = paths;
-    args.classes = 20;
+    args.classes = NUM_CLASSES;
     args.n = imgs;
     args.m = N;
     args.d = &buffer;
@@ -106,7 +108,7 @@ void validate_compare(char *filename, char *weightfile)
     args.w = net.w;
     args.h = net.h;
     args.paths = paths;
-    args.classes = 20;
+    args.classes = NUM_CLASSES;
     args.n = num;
     args.m = 0;
     args.d = &buffer;
@@ -131,7 +133,7 @@ void validate_compare(char *filename, char *weightfile)
         matrix pred = network_predict_data(net, val);
         int j,k;
         for(j = 0; j < val.y.rows; ++j){
-            for(k = 0; k < 20; ++k){
+            for(k = 0; k < NUM_CLASSES; ++k){
                 if(val.y.vals[j][k*2] != val.y.vals[j][k*2+1]){
                     ++total;
                     if((val.y.vals[j][k*2] < val.y.vals[j][k*2+1]) == (pred.vals[j][k*2] < pred.vals[j][k*2+1])){
@@ -258,7 +260,7 @@ void SortMaster3000(char *filename, char *weightfile)
 
 void BattleRoyaleWithCheese(char *filename, char *weightfile)
 {
-    int classes = 20;
+    int classes = NUM_CLASSES;
     int i,j;
     network net = parse_network_cfg(filename);
     if(weightfile){
