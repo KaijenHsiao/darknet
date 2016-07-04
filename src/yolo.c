@@ -18,8 +18,8 @@ image voc_labels[NUM_CLASSES];
 
 void train_yolo(char *cfgfile, char *weightfile)
 {
-    char *train_images = "/home/kaijen/research/PascalVOCdata/train.txt";
-    char *backup_directory = "/home/kaijen/research/darknet/backup/";
+    char *train_images = "/home/kaijen/data/voc/train.txt";
+    char *backup_directory = "/home/kaijen/data/backup/";
     srand(time(0));
     data_seed = time(0);
     char *base = basecfg(cfgfile);
@@ -148,7 +148,7 @@ void validate_yolo(char *cfgfile, char *weightfile)
 
     char *base = "results/comp4_det_test_";
     //list *plist = get_paths("data/voc.2007.test");
-    list *plist = get_paths("/home/kaijen/research/PascalVOCdata/2007_test.txt");
+    list *plist = get_paths("/home/kaijen/data/voc/2007_test.txt");
     //list *plist = get_paths("data/voc.2012.test");
     char **paths = (char **)list_to_array(plist);
 
